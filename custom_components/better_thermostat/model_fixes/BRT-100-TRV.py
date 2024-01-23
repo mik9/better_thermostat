@@ -22,21 +22,24 @@ def fix_target_temperature_calibration(self, entity_id, temperature):
         if self.attr_hvac_action == HVACAction.HEATING:
             valve_position = heating_power_valve_position(self, entity_id)
 
-            if valve_position <= 0.25:
-                temp_diff = 1
-            elif valve_position <= 0.5:
-                temp_diff = 2
-            elif valve_position <= 0.75:
-                temp_diff = 3
-            else:
-                temp_diff = 4
-
-            temperature = _cur_trv_temp_s + temp_diff
+            temperature = _cur_trv_temp_s + get_brt_100_tmp_diff(valve_position)
 
     if self.attr_hvac_action == HVACAction.IDLE:
         temperature = _cur_trv_temp_s - 3.0
 
     return temperature
+
+def get_brt_100_tmp_diff(valve_position):
+    if valve_position <= 0.25:
+        temp_diff = 1
+    elif valve_position <= 0.5:
+        temp_diff = 2
+    elif valve_position <= 0.75:
+        temp_diff = 3
+    else:
+        temp_diff = 4
+
+    return temp_diff
 
 
 async def override_set_hvac_mode(self, entity_id, hvac_mode):

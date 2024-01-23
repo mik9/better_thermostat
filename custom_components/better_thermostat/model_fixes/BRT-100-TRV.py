@@ -1,3 +1,4 @@
+from datetime import datetime, time
 from homeassistant.components.climate.const import HVACAction
 
 from custom_components.better_thermostat.utils.const import CalibrationMode
@@ -21,6 +22,11 @@ def fix_target_temperature_calibration(self, entity_id, temperature):
     if _calibration_mode == CalibrationMode.HEATING_POWER_CALIBRATION:
         if self.attr_hvac_action == HVACAction.HEATING:
             valve_position = heating_power_valve_position(self, entity_id)
+
+            # Personal change: we have less heat during the day
+            now = datetime.now().time()
+            if now >= time(6, 00) and now < time(20, 00):
+                valve_position = 1.0
 
             temperature = _cur_trv_temp_s + get_brt_100_tmp_diff(valve_position)
 
